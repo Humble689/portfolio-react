@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './Login.css';
+import SecureStorage from 'react-secure-storage';
+
+import secureLocalStorage from 'react-secure-storage';
 
 const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -7,7 +10,7 @@ const Login = ({ onLogin }) => {
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // use formik
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,6 +51,8 @@ const Login = ({ onLogin }) => {
     try {
       if (formData.username === 'admin' && formData.password === 'password') {
         onLogin();
+        SecureStorage.setItem('username', formData.username);
+
       } else {
         setErrors({
           submit: 'Invalid username or password'
@@ -118,4 +123,4 @@ const Login = ({ onLogin }) => {
   );
 };
 
-export default Login; 
+export default Login;
