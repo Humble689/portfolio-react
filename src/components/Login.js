@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import './Login.css';
-import SecureStorage from 'react-secure-storage';
-
+import React, { useState, useEffect } from 'react';
 import secureLocalStorage from 'react-secure-storage';
+import './Login.css';
 
 const Login = ({ onLogin }) => {
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+
+
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false); // use formik
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const username = secureLocalStorage.getItem('username');
+    if (username) {
+      onLogin(); // Call onLogin if user is already logged in
+    }
+  }, [onLogin]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +46,15 @@ const Login = ({ onLogin }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const fakeApiCall = (username, password) => {
+    // Simulate a successful login response
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ success: true });
+      }, 1000);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -49,18 +66,18 @@ const Login = ({ onLogin }) => {
     
     // Simulate API call
     try {
-      if (formData.username === 'admin' && formData.password === 'password') {
+      const response = await fakeApiCall(formData.username, formData.password);
+      if (response.success) {
         onLogin();
-        SecureStorage.setItem('username', formData.username);
-
+        secureLocalStorage.setItem('username', formData.username); // Store username in secure local storage
       } else {
         setErrors({
-          submit: 'Invalid username or password'
+          submit: response.message || 'Invalid username or password'
         });
       }
     } catch (error) {
       setErrors({
-        submit: 'An error occurred. Please try again.'
+        submit: error.message || 'An error occurred. Please try again.'
       });
     } finally {
       setIsLoading(false);
@@ -75,14 +92,6 @@ const Login = ({ onLogin }) => {
           <p>Please login to view your portfolio</p>
         </div>
         
-        <div className="login-info">
-          <h3>Login Details</h3>
-          <div className="credentials">
-            <p><strong>Username:</strong> admin</p>
-            <p><strong>Password:</strong> password</p>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="username">Username</label>
@@ -101,7 +110,7 @@ const Login = ({ onLogin }) => {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'} // Toggle between text and password
               id="password"
               name="password"
               value={formData.password}
@@ -109,6 +118,10 @@ const Login = ({ onLogin }) => {
               className={errors.password ? 'error' : ''}
               placeholder="Enter your password"
             />
+            <button type="button" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? 'Hide' : 'Show'} Password
+            </button>
+
             {errors.password && <span className="error-message">{errors.password}</span>}
           </div>
 
@@ -121,6 +134,7 @@ const Login = ({ onLogin }) => {
       </div>
     </div>
   );
+  
 };
 
 export default Login;

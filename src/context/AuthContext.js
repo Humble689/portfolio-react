@@ -1,12 +1,19 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import secureLocalStorage from 'react-secure-storage';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  useEffect(() => {
+    const username = secureLocalStorage.getItem('username');
+    if (username) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   const login = (credentials) => {
-    // In a real application, you would validate credentials against a backend
     if (credentials.username === 'admin' && credentials.password === 'password') {
       setIsAuthenticated(true);
       return true;
@@ -16,6 +23,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setIsAuthenticated(false);
+    secureLocalStorage.removeItem('username'); // Clear username on logout
   };
 
   return (
@@ -31,4 +39,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};
