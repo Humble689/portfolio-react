@@ -6,6 +6,7 @@ import Education from './components/Education';
 import Portfolio from './components/Portfolio';
 import Login from './components/Login';
 import Profile from './components/Profile';
+import Skills from './components/Skills';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
@@ -47,6 +48,7 @@ function App() {
           <Route path="/" element={<Hero />} />
           <Route path="/education" element={<Education />} />
           <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/skills" element={<Skills />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
